@@ -72,6 +72,10 @@ export default {
           case "float":
             val = isNumber(val) ? Number(val) : strValue;
             break;
+          case "unsigned_integer":
+            console.log(isInteger(val))
+            val = isInteger(val) ? Number(val) : strValue;
+            break;
           default:
             val = strValue;
         }

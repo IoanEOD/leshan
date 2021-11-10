@@ -19,6 +19,9 @@ function isInteger(value) {
   if (typeof value === "number") {
     return value === Math.round(value);
   } else if (typeof value === "string" && value.trim() !== "") {
+    console.log("str value     " + value)
+    console.log("number  value " + Number(value))
+    console.log("rounded value " + Math.round(Number(value)))
     return value === String(Math.round(Number(value)));
   }
   return false;

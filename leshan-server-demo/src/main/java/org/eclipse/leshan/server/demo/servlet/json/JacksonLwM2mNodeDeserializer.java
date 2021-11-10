@@ -34,6 +34,7 @@ import org.eclipse.leshan.core.node.LwM2mResourceInstance;
 import org.eclipse.leshan.core.node.LwM2mSingleResource;
 import org.eclipse.leshan.core.node.ObjectLink;
 import org.eclipse.leshan.core.util.Hex;
+import org.eclipse.leshan.core.util.datatype.ULong;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -195,7 +196,17 @@ public class JacksonLwM2mNodeDeserializer extends JsonDeserializer<LwM2mNode> {
             }
             raiseUnexpectedType(val, type, "object{objectId:integer, objectInstanceId:integer}", val.getNodeType());
             break;
-
+        case UNSIGNED_INTEGER:
+            if (val.canConvertToExactIntegral()) {
+                if (val.canConvertToLong()) {
+                    return ULong.valueOf(val.asLong());
+                } else {
+                    return ULong.valueOf(val.bigIntegerValue());
+                }
+            } else {
+                raiseUnexpectedType(val, type, "number(long)", val.getNodeType());
+            }
+            break;
         default:
             break;
         }
