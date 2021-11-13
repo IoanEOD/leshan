@@ -28,6 +28,7 @@ import picocli.CommandLine.ITypeConverter;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 import redis.clients.jedis.JedisPool;
 
@@ -76,6 +77,16 @@ public class LeshanServerDemoCLI implements Runnable {
                 description = { //
                         "Publish leshan's services to DNS Service discovery." })
         public Boolean mdns;
+        
+        @Option(names = { "-cls", "--cloud-leshan-server" },
+                description = { //
+                        "Initialize server as cloud leshan." })
+        public Boolean cls;
+        
+        @Option(names = { "-els", "--edge-leshan-server" },
+                description = { //
+                        "Initialize server as edge leshan." })
+        public Boolean els;
     }
 
     /* ********************************** DTLS Section ******************************** */

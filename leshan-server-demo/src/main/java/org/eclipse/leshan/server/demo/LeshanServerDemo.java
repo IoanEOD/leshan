@@ -44,7 +44,8 @@ import org.eclipse.leshan.core.model.ObjectModel;
 import org.eclipse.leshan.server.californium.LeshanServer;
 import org.eclipse.leshan.server.californium.LeshanServerBuilder;
 import org.eclipse.leshan.server.demo.cli.LeshanServerDemoCLI;
-import org.eclipse.leshan.server.demo.servlet.ClientServlet;
+import org.eclipse.leshan.server.demo.servlet.CloudServlet;
+import org.eclipse.leshan.server.demo.servlet.EdgeServlet;
 import org.eclipse.leshan.server.demo.servlet.EventServlet;
 import org.eclipse.leshan.server.demo.servlet.ObjectSpecServlet;
 import org.eclipse.leshan.server.demo.servlet.SecurityServlet;
@@ -86,7 +87,7 @@ public class LeshanServerDemo {
         // Handle help or version command
         if (command.isUsageHelpRequested() || command.isVersionHelpRequested())
             System.exit(0);
-
+        
         try {
             // Create LWM2M Server
             LeshanServer lwm2mServer = createLeshanServer(cli);
@@ -155,6 +156,8 @@ public class LeshanServerDemo {
         builder.setLocalSecureAddress(cli.main.secureLocalAddress,
                 cli.main.secureLocalPort == null ? coapConfig.get(CoapConfig.COAP_SECURE_PORT)
                         : cli.main.secureLocalPort);
+        
+
 
         // Create DTLS Config
         DtlsConnectorConfig.Builder dtlsConfig = DtlsConnectorConfig.builder(coapConfig);
@@ -240,7 +243,18 @@ public class LeshanServerDemo {
         ServletHolder eventServletHolder = new ServletHolder(eventServlet);
         root.addServlet(eventServletHolder, "/api/event/*");
 
-        ServletHolder clientServletHolder = new ServletHolder(new ClientServlet(lwServer));
+        
+        // Determine clientServletHolder based on multi-tier configuration
+        ServletHolder clientServletHolder;
+        if(cli.main.cls != null) {
+        	clientServletHolder = new ServletHolder(new EdgeServlet(lwServer));
+        }
+        else if(cli.main.els != null){
+        	clientServletHolder = new ServletHolder(new CloudServlet(lwServer));
+        }
+        else {
+        	clientServletHolder = new ServletHolder(new EdgeServlet(lwServer));
+        }
         root.addServlet(clientServletHolder, "/api/clients/*");
 
         ServletHolder securityServletHolder;
