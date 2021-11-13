@@ -93,6 +93,7 @@ public class CloudServlet extends HttpServlet {
     private final ObjectMapper mapper;
 
     public CloudServlet(LeshanServer server) {
+    	System.out.println("CloudServlet");
         this.server = server;
 
         mapper = new ObjectMapper();

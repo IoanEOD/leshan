@@ -93,6 +93,7 @@ public class EdgeServlet extends HttpServlet {
     private final ObjectMapper mapper;
 
     public EdgeServlet(LeshanServer server) {
+    	System.out.println("EdgeServlet");
         this.server = server;
 
         mapper = new ObjectMapper();

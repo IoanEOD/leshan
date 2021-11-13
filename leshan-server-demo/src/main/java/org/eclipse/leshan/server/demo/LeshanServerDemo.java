@@ -247,10 +247,10 @@ public class LeshanServerDemo {
         // Determine clientServletHolder based on multi-tier configuration
         ServletHolder clientServletHolder;
         if(cli.main.cls != null) {
-        	clientServletHolder = new ServletHolder(new EdgeServlet(lwServer));
+        	clientServletHolder = new ServletHolder(new CloudServlet(lwServer));
         }
         else if(cli.main.els != null){
-        	clientServletHolder = new ServletHolder(new CloudServlet(lwServer));
+        	clientServletHolder = new ServletHolder(new EdgeServlet(lwServer));
         }
         else {
         	clientServletHolder = new ServletHolder(new EdgeServlet(lwServer));
