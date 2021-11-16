@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -76,6 +77,7 @@ public class LeshanServerDemo {
     private static final String CF_CONFIGURATION_HEADER = "Leshan Server Demo - " + Configuration.DEFAULT_HEADER;
 
     public static void main(String[] args) {
+    	
 
         // Parse command line
         LeshanServerDemoCLI cli = new LeshanServerDemoCLI();

@@ -91,6 +91,8 @@ public class CloudServlet extends HttpServlet {
     private final LeshanServer server;
 
     private final ObjectMapper mapper;
+    
+    private final WebSocketServer serverSocket;
 
     public CloudServlet(LeshanServer server) {
     	System.out.println("CloudServlet");
@@ -104,6 +106,8 @@ public class CloudServlet extends HttpServlet {
         module.addSerializer(LwM2mNode.class, new JacksonLwM2mNodeSerializer());
         module.addDeserializer(LwM2mNode.class, new JacksonLwM2mNodeDeserializer());
         mapper.registerModule(module);
+        
+        serverSocket = new WebSocketServer();
     }
 
     /**
@@ -111,7 +115,8 @@ public class CloudServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
+        
+        
         // all registered clients
         if (req.getPathInfo() == null) {
             Collection<Registration> registrations = new ArrayList<>();

@@ -104,6 +104,8 @@ public class EdgeServlet extends HttpServlet {
         module.addSerializer(LwM2mNode.class, new JacksonLwM2mNodeSerializer());
         module.addDeserializer(LwM2mNode.class, new JacksonLwM2mNodeDeserializer());
         mapper.registerModule(module);
+        
+      
     }
 
     /**
@@ -111,6 +113,10 @@ public class EdgeServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    	
+        WebSocketClient clientSocket;
+        clientSocket = new WebSocketClient();
+        clientSocket.sendData();
 
         // all registered clients
         if (req.getPathInfo() == null) {
