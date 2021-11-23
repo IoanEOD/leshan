@@ -18,6 +18,7 @@
 package org.eclipse.leshan.server.demo;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -225,7 +226,7 @@ public class LeshanServerDemo {
         return builder.build();
     }
 
-    private static Server createJettyServer(LeshanServerDemoCLI cli, LeshanServer lwServer) {
+    private static Server createJettyServer(LeshanServerDemoCLI cli, LeshanServer lwServer) throws IOException {
         // Now prepare Jetty
         InetSocketAddress jettyAddr;
         if (cli.main.webhost == null) {

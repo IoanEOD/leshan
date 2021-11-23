@@ -11,15 +11,25 @@ import java.net.Socket;
 public class WebSocketServer {
 	
 	private ServerSocket serverSocket;
+	private Socket socket;
 	
-	public void WebsSocketServer() throws IOException {
-		serverSocket = new ServerSocket(1234);
-		Socket socket = serverSocket.accept();
-		
-        InputStream input = socket.getInputStream();
-        OutputStream output = socket.getOutputStream();
-		
-		System.out.println(input.read());
+	public WebSocketServer() throws IOException {
+		serverSocket = new ServerSocket(4999);
+		Thread connectionThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					socket = serverSocket.accept();
+			        InputStream input = socket.getInputStream();
+			        OutputStream output = socket.getOutputStream();
+					
+					System.out.println(input.read());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		connectionThread.start();
 	}
 	
 	public void close() throws IOException {

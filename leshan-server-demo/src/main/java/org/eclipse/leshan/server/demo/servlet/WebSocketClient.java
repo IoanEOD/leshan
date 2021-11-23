@@ -4,7 +4,6 @@ package org.eclipse.leshan.server.demo.servlet;
 import java.net.*;
 import java.io.*;
 
-import org.eclipse.leshan.core.response.ReadResponse;
 
 public class WebSocketClient {
     String endpoint;
@@ -15,7 +14,7 @@ public class WebSocketClient {
 
     public WebSocketClient() throws IOException {
 //        this.endpoint = endpoint;
-        this.socket = new Socket("localhost",1234);
+        this.socket = new Socket("localhost",4999);
     }
 
 

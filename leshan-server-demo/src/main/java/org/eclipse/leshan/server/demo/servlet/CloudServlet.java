@@ -94,7 +94,7 @@ public class CloudServlet extends HttpServlet {
     
     private final WebSocketServer serverSocket;
 
-    public CloudServlet(LeshanServer server) {
+    public CloudServlet(LeshanServer server) throws IOException {
     	System.out.println("CloudServlet");
         this.server = server;
 
