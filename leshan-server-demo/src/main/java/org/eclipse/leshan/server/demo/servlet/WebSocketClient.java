@@ -13,8 +13,7 @@ public class WebSocketClient {
 
 
     public WebSocketClient() throws IOException {
-//        this.endpoint = endpoint;
-        this.socket = new Socket("localhost",4999);
+        this.socket = new Socket("192.168.56.102",4999);
     }
 
 
@@ -23,7 +22,7 @@ public class WebSocketClient {
             PrintWriter writer = new PrintWriter(output, true);
 //            String clientinfo = this.endpoint + " " + data;
             ip = InetAddress.getLocalHost();
-            writer.println(ip);
+            writer.println(ip.toString());
         }
 
     public String getInput() throws IOException {

@@ -2,20 +2,16 @@ package org.eclipse.leshan.server.demo.servlet;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class WebSocketServer {
-	
+
 	private ServerSocket serverSocket;
 	private Socket socket;
-	
+
 	public WebSocketServer() throws IOException {
 		Thread connectionThread = new Thread(new Runnable() {
 			@Override
@@ -23,9 +19,9 @@ public class WebSocketServer {
 				try {
 					Socket socket=null;
 					ServerSocket serverSocket=null;
-					System.out.println("Server Listening......");
+					System.out.println("Server Listening..");
 					serverSocket = new ServerSocket(4999);
-					//TODO: Close socket when data is recieved successfully
+					//TODO: Close socket
 					while(true){
 						try{
 							socket= serverSocket.accept();
@@ -47,12 +43,12 @@ public class WebSocketServer {
 		});
 		connectionThread.start();
 	}
-	
+
 	public void close() throws IOException {
 		serverSocket.close();
 	}
-	
-	
+
+
 
 }
 
@@ -76,20 +72,20 @@ class ServerThread extends Thread{
 		}catch(IOException e){
 			System.out.println("IO error in server thread");
 		}
-        while (true) {
-            try {
-                line = inputStream.readLine();
-                if ((line == null) || line.equalsIgnoreCase("QUIT")) {
-                    socket.close();
-                    return;
-                } else {
-                	System.out.println(line);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
-        }
+		while (true) {
+			try {
+				line = inputStream.readLine();
+				if ((line == null) || line.equalsIgnoreCase("QUIT")) {
+					socket.close();
+					return;
+				} else {
+					System.out.println(line);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				return;
+			}
+		}
 	}
 }
 

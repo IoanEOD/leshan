@@ -114,9 +114,9 @@ public class EdgeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     	
-        WebSocketClient clientSocket;
-        clientSocket = new WebSocketClient();
-        clientSocket.sendData();
+         WebSocketClient clientSocket;
+         clientSocket = new WebSocketClient();
+         clientSocket.sendData();
 
         // all registered clients
         if (req.getPathInfo() == null) {
