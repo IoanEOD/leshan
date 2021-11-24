@@ -17,6 +17,7 @@
 package org.eclipse.leshan.server.demo.servlet;
 
 import java.io.IOException;
+import java.net.http.WebSocket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -91,8 +92,10 @@ public class EdgeServlet extends HttpServlet {
     private final LeshanServer server;
 
     private final ObjectMapper mapper;
+    
+    private final WebSocketClient clientSocket;
 
-    public EdgeServlet(LeshanServer server) {
+    public EdgeServlet(LeshanServer server) throws IOException {
     	System.out.println("EdgeServlet");
         this.server = server;
 
@@ -105,7 +108,8 @@ public class EdgeServlet extends HttpServlet {
         module.addDeserializer(LwM2mNode.class, new JacksonLwM2mNodeDeserializer());
         mapper.registerModule(module);
         
-      
+        clientSocket = new WebSocketClient("192.168.56.102", 4999);
+        clientSocket.sendIPAddress();
     }
 
     /**
@@ -114,9 +118,6 @@ public class EdgeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     	
-         WebSocketClient clientSocket;
-         clientSocket = new WebSocketClient();
-         clientSocket.sendData();
 
         // all registered clients
         if (req.getPathInfo() == null) {

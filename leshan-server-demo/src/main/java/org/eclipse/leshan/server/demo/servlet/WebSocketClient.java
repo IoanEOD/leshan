@@ -6,23 +6,18 @@ import java.io.*;
 
 
 public class WebSocketClient {
-    String endpoint;
     Socket socket;
-    InetAddress ip;
 
-
-
-    public WebSocketClient() throws IOException {
-        this.socket = new Socket("192.168.56.102",4999);
+    public WebSocketClient(String address, int port) throws IOException {
+        this.socket = new Socket(address,port);
     }
 
 
-    public void sendData() throws IOException {
+    public void sendIPAddress() throws IOException {
             OutputStream output = socket.getOutputStream();
             PrintWriter writer = new PrintWriter(output, true);
-//            String clientinfo = this.endpoint + " " + data;
-            ip = InetAddress.getLocalHost();
-            writer.println(ip.toString());
+            String localHost = InetAddress.getLocalHost().toString();
+            writer.println(localHost.split("/")[1]);
         }
 
     public String getInput() throws IOException {
