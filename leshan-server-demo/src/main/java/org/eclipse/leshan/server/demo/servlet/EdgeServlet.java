@@ -65,6 +65,7 @@ import org.eclipse.leshan.server.demo.servlet.json.JacksonLwM2mNodeDeserializer;
 import org.eclipse.leshan.server.demo.servlet.json.JacksonLwM2mNodeSerializer;
 import org.eclipse.leshan.server.demo.servlet.json.JacksonRegistrationSerializer;
 import org.eclipse.leshan.server.demo.servlet.json.JacksonResponseSerializer;
+import org.eclipse.leshan.server.demo.websocket.WebSocketClient;
 import org.eclipse.leshan.server.registration.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
