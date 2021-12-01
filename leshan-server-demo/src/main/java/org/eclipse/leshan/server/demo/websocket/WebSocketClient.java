@@ -1,4 +1,4 @@
-package org.eclipse.leshan.server.demo.servlet;
+package org.eclipse.leshan.server.demo.websocket;
 
 
 import java.net.*;
