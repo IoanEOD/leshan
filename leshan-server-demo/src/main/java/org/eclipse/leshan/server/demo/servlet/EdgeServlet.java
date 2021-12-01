@@ -108,7 +108,7 @@ public class EdgeServlet extends HttpServlet {
         module.addDeserializer(LwM2mNode.class, new JacksonLwM2mNodeDeserializer());
         mapper.registerModule(module);
         
-        clientSocket = new WebSocketClient("192.168.56.102", 4999);
+        clientSocket = new WebSocketClient("192.168.56.104", 4999);
         clientSocket.sendIPAddress();
     }
 
