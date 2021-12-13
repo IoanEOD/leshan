@@ -108,7 +108,7 @@ public class CloudServlet extends HttpServlet {
         module.addDeserializer(LwM2mNode.class, new JacksonLwM2mNodeDeserializer());
         mapper.registerModule(module);
         
-        serverSocket = new WebSocketServer();
+        serverSocket = new WebSocketServer(server);
     }
 
     /**
