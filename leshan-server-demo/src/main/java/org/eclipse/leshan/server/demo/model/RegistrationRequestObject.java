@@ -1,5 +1,7 @@
 package org.eclipse.leshan.server.demo.model;
 
+import java.net.Inet4Address;
+
 import org.eclipse.leshan.server.registration.Registration;
 
 public class RegistrationRequestObject {
@@ -14,6 +16,19 @@ public class RegistrationRequestObject {
 		setRequestType(requestType);
 		this.registration = registration;
 		this.addr = addr;
+		this.hostName = hostName;
+		this.port = port;
+	}
+
+	public RegistrationRequestObject(String requestType, Registration registration) {
+		final Inet4Address inetAddr = (Inet4Address) registration.getIdentity().getPeerAddress().getAddress();
+		final byte[] ip = inetAddr.getAddress();
+		final String hostName = inetAddr.getHostName();
+		final int port = registration.getIdentity().getPeerAddress().getPort();
+
+		setRequestType(requestType);
+		this.registration = registration;
+		this.addr = ip;
 		this.hostName = hostName;
 		this.port = port;
 	}
