@@ -11,8 +11,6 @@ import org.eclipse.leshan.server.demo.websocket.WebSocketClient;
 import org.eclipse.leshan.server.registration.Registration;
 import org.eclipse.leshan.server.registration.RegistrationListener;
 import org.eclipse.leshan.server.registration.RegistrationUpdate;
-import org.eclipse.leshan.core.request.Identity;
-import org.eclipse.leshan.core.request.RegisterRequest;
 import org.eclipse.leshan.server.demo.model.RegistrationRequestObject;
 import com.google.gson.Gson;
 
@@ -29,31 +27,17 @@ public class WebSocketClient {
         public void registered(Registration registration, Registration previousReg,
                 Collection<org.eclipse.leshan.core.observation.Observation> previousObsersations) {
                     System.out.println("registered");
-                    final Inet4Address addr = (Inet4Address) registration.getIdentity().getPeerAddress().getAddress();
-                    final byte[] ip = addr.getAddress();
-                    final String hostName = addr.getHostName();
-                    final int port = registration.getIdentity().getPeerAddress().getPort();
-                    RegistrationRequestObject r = new RegistrationRequestObject(registration, ip, hostName, port);
 
-                    final Gson gson = new Gson();
-                    String json = gson.toJson(r, RegistrationRequestObject.class);
-                    writer.println(json);
-
+                    RegistrationRequestObject registrationRequestObject = new RegistrationRequestObject("register", registration);
+                    sendRegistrationRequestObject(registrationRequestObject);
         }
 
         @Override
         public void updated(RegistrationUpdate update, Registration updatedReg, Registration previousReg) {
             System.out.println("updated");
 
-            final Inet4Address addr = (Inet4Address) updatedReg.getIdentity().getPeerAddress().getAddress();
-            final byte[] ip = addr.getAddress();
-            final String hostName = addr.getHostName();
-            final int port = updatedReg.getIdentity().getPeerAddress().getPort();
-            RegistrationRequestObject r = new RegistrationRequestObject(updatedReg, ip, hostName, port);
-
-            final Gson gson = new Gson();
-            String json = gson.toJson(r, RegistrationRequestObject.class);
-            writer.println(json);
+            RegistrationRequestObject registrationRequestObject = new RegistrationRequestObject("update", updatedReg);
+            sendRegistrationRequestObject(registrationRequestObject);
         }
 
         @Override
@@ -61,6 +45,9 @@ public class WebSocketClient {
                 Collection<org.eclipse.leshan.core.observation.Observation> observations, boolean expired,
                 Registration newReg) {
                     System.out.println("unregistered");
+
+                    RegistrationRequestObject registrationRequestObject = new RegistrationRequestObject("deregister", registration);
+                    sendRegistrationRequestObject(registrationRequestObject);
         }
     };
 
@@ -77,6 +64,12 @@ public class WebSocketClient {
     public void sendIPAddress() throws IOException {
         String localHost = InetAddress.getLocalHost().toString();
         writer.println(localHost.split("/")[1]);
+    }
+
+    public void sendRegistrationRequestObject(RegistrationRequestObject registrationRequestObject) {
+        final Gson gson = new Gson();
+        String json = gson.toJson(registrationRequestObject, RegistrationRequestObject.class);
+        writer.println(json);
     }
 
 

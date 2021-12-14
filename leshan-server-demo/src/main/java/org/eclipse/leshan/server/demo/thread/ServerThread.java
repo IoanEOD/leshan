@@ -5,36 +5,25 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.Map;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
-import org.eclipse.leshan.core.link.Link;
 import org.eclipse.leshan.core.request.Identity;
-import org.eclipse.leshan.core.request.UplinkRequest;
+import org.eclipse.leshan.core.request.UpdateRequest;
 import org.eclipse.leshan.server.californium.LeshanServer;
 import org.eclipse.leshan.server.registration.Deregistration;
-import org.eclipse.leshan.server.registration.RandomStringRegistrationIdProvider;
 import org.eclipse.leshan.server.registration.Registration;
 import org.eclipse.leshan.server.registration.RegistrationHandler;
-import org.eclipse.leshan.server.registration.RegistrationIdProvider;
 import org.eclipse.leshan.server.registration.RegistrationServiceImpl;
-import org.eclipse.leshan.server.security.Authorizer;
-import org.eclipse.leshan.server.security.DefaultAuthorizer;
 import org.eclipse.leshan.server.demo.model.RegistrationRequestObject;
-import org.eclipse.leshan.core.request.BindingMode;
+import org.eclipse.leshan.core.request.DeregisterRequest;
 
 enum RecieveModes {
 	ip, request
 }
 
-public class ServerThread extends Thread{  
+public class ServerThread extends Thread {
 
 	private String clientIP;
 
@@ -52,11 +41,11 @@ public class ServerThread extends Thread{
 
 	private RecieveModes recieveMode = RecieveModes.ip;
 
-    private Gson gson;
+	private Gson gson;
 
 	private RegistrationServiceImpl registrationService;
 
-	public ServerThread(Socket socket, RegistrationHandler registrationHandler, LeshanServer server){
+	public ServerThread(Socket socket, RegistrationHandler registrationHandler, LeshanServer server) {
 		this.socket = socket;
 		this.registrationHandler = registrationHandler;
 		this.server = server;
@@ -66,11 +55,11 @@ public class ServerThread extends Thread{
 	}
 
 	public void run() {
-		try{
+		try {
 			inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			outputStream =new PrintWriter(socket.getOutputStream());
+			outputStream = new PrintWriter(socket.getOutputStream());
 
-		}catch(IOException e){
+		} catch (IOException e) {
 			System.out.println("IO error in server thread");
 		}
 		while (true) {
@@ -80,49 +69,63 @@ public class ServerThread extends Thread{
 					socket.close();
 					return;
 				} else {
-					switch(recieveMode) {
+					switch (recieveMode) {
 						case ip:
 							clientIP = line;
 							recieveMode = RecieveModes.request;
-						  break;
+							break;
 						case request:
-							RegistrationRequestObject r = gson.fromJson(line, RegistrationRequestObject.class);
-							Registration oldRegistration = r.getRegistration();
+							RegistrationRequestObject requestObject = gson.fromJson(line,
+									RegistrationRequestObject.class);
+							Registration registration = requestObject.getRegistration();
+							Identity identity = Identity
+									.unsecure(Inet4Address.getByAddress(requestObject.getHostName(),
+											requestObject.getAddr()), requestObject.getPort());
 
-							// Link[] linkObject = oldRegistration.getObjectLinks();
-							// long lifeTimeInSec = oldRegistration.getLifeTimeInSec();
-							// EnumSet<BindingMode> bindingMode = oldRegistration.getBindingMode();
-							// String smsNumber = oldRegistration.getSmsNumber();
-							// Map<String, String> additionalAttributes = oldRegistration.getAdditionalRegistrationAttributes();
-							// Date lastUpdate = new Date();
+							String requestType = requestObject.getRequestType();
+							switch (requestType) {
+								case "register":
+									Registration.Builder builder = new Registration.Builder(registration.getId(),
+											registration.getEndpoint(), identity);
 
-							InetAddress inet4Address = Inet4Address.getByAddress(r.getHostName(), r.getAddr());
-							InetSocketAddress inetSocketAddress = new InetSocketAddress(inet4Address, r.getPort());
-							Identity identity = Identity.unsecure(inet4Address, r.getPort());
-							Registration.Builder builder = new Registration.Builder(oldRegistration.getId(), oldRegistration.getEndpoint(), identity);
+									builder.lwM2mVersion(registration.getLwM2mVersion())
+											.rootPath(registration.getRootPath())
+											.supportedContentFormats(registration.getSupportedContentFormats())
+											.supportedObjects(registration.getSupportedObject())
+											.availableInstances(registration.getAvailableInstances())
+											.objectLinks(registration.getObjectLinks())
+											.lifeTimeInSec(registration.getLifeTimeInSec())
+											.bindingMode(registration.getBindingMode())
+											.smsNumber(registration.getSmsNumber()).additionalRegistrationAttributes(
+													registration.getAdditionalRegistrationAttributes());
 
-							builder.lwM2mVersion(oldRegistration.getLwM2mVersion()).rootPath(oldRegistration.getRootPath())
-							.supportedContentFormats(oldRegistration.getSupportedContentFormats())
-							.supportedObjects(oldRegistration.getSupportedObject())
-							.availableInstances(oldRegistration.getAvailableInstances()).objectLinks(oldRegistration.getObjectLinks()).lifeTimeInSec(oldRegistration.getLifeTimeInSec()).bindingMode(oldRegistration.getBindingMode()).smsNumber(oldRegistration.getSmsNumber()).additionalRegistrationAttributes(oldRegistration.getAdditionalRegistrationAttributes());
+									Registration newRegistration = builder.build();
+									final Deregistration deregistration = registrationService.getStore()
+											.addRegistration(newRegistration);
+									break;
+								case "update":
+									UpdateRequest updateRequest = new UpdateRequest(registration.getEndpoint(),
+											registration.getLifeTimeInSec(),
+											registration.getLwM2mVersion().toString(),
+											registration.getBindingMode(), registration.getObjectLinks(),
+											registration.getAdditionalRegistrationAttributes());
+									registrationHandler.update(identity, updateRequest);
+									break;
+								case "deregister":
+									DeregisterRequest deregisterRequest = new DeregisterRequest(registration.getId());
+									registrationHandler.deregister(identity, deregisterRequest);
+									break;
+							}
 
-							Registration newRegistration = builder.build();						
-							final Deregistration deregistration = registrationService.getStore().addRegistration(newRegistration);
-
-							// RegistrationRequestObject regReqObj = gson.fromJson(line, RegistrationRequestObject.class);
-							// System.out.println(regReqObj);
-							// registrationHandler.register(regReqObj.getSender(), regReqObj.getRegisterRequest());
-						break;
+							break;
 						default:
-					  }
+					}
 					System.out.println(line);
 				}
-			} catch (IOException e) { 
+			} catch (IOException e) {
 				e.printStackTrace();
 				return;
 			}
 		}
 	}
 }
-
-
