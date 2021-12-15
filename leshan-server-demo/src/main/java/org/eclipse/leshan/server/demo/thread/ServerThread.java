@@ -11,6 +11,8 @@ import com.google.gson.Gson;
 
 import org.eclipse.leshan.core.request.Identity;
 import org.eclipse.leshan.core.request.UpdateRequest;
+import org.eclipse.leshan.core.response.SendableResponse;
+import org.eclipse.leshan.core.response.UpdateResponse;
 import org.eclipse.leshan.server.californium.LeshanServer;
 import org.eclipse.leshan.server.registration.Deregistration;
 import org.eclipse.leshan.server.registration.Registration;
@@ -104,12 +106,8 @@ public class ServerThread extends Thread {
 											.addRegistration(newRegistration);
 									break;
 								case "update":
-									UpdateRequest updateRequest = new UpdateRequest(registration.getEndpoint(),
-											registration.getLifeTimeInSec(),
-											registration.getLwM2mVersion().toString(),
-											registration.getBindingMode(), registration.getObjectLinks(),
-											registration.getAdditionalRegistrationAttributes());
-									registrationHandler.update(identity, updateRequest);
+									UpdateRequest updateRequest = new UpdateRequest(registration.getId(),registration.getLifeTimeInSec(),registration.getSmsNumber(),registration.getBindingMode(),registration.getObjectLinks(),registration.getAdditionalRegistrationAttributes());
+									final SendableResponse<UpdateResponse> updateResponse = registrationHandler.update(identity, updateRequest);
 									break;
 								case "deregister":
 									DeregisterRequest deregisterRequest = new DeregisterRequest(registration.getId());
