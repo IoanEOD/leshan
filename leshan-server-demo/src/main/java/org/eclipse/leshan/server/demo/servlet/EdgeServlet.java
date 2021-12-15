@@ -110,7 +110,7 @@ public class EdgeServlet extends HttpServlet {
         mapper.registerModule(module);
         
         clientSocket = new WebSocketClient(server, "192.168.56.106", 4999);
-        clientSocket.sendIPAddress();
+        clientSocket.sendEdgeName();
     }
 
     /**

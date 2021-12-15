@@ -61,9 +61,9 @@ public class WebSocketClient {
         writer = new PrintWriter(output, true);
     }
 
-    public void sendIPAddress() throws IOException {
+    public void sendEdgeName() throws IOException {
         String localHost = InetAddress.getLocalHost().toString();
-        writer.println(localHost.split("/")[1]);
+        writer.println(localHost.split("/")[0]);
     }
 
     public void sendRegistrationRequestObject(RegistrationRequestObject registrationRequestObject) {

@@ -22,12 +22,12 @@ import org.eclipse.leshan.server.demo.model.RegistrationRequestObject;
 import org.eclipse.leshan.core.request.DeregisterRequest;
 
 enum RecieveModes {
-	ip, request
+	name, request
 }
 
 public class ServerThread extends Thread {
 
-	private String clientIP;
+	private String clientName;
 
 	private LeshanServer server;
 
@@ -41,7 +41,7 @@ public class ServerThread extends Thread {
 
 	private RegistrationHandler registrationHandler;
 
-	private RecieveModes recieveMode = RecieveModes.ip;
+	private RecieveModes recieveMode = RecieveModes.name;
 
 	private Gson gson;
 
@@ -72,8 +72,8 @@ public class ServerThread extends Thread {
 					return;
 				} else {
 					switch (recieveMode) {
-						case ip:
-							clientIP = line;
+						case name:
+							clientName = line;
 							recieveMode = RecieveModes.request;
 							break;
 						case request:
@@ -88,7 +88,7 @@ public class ServerThread extends Thread {
 							switch (requestType) {
 								case "register":
 									Registration.Builder builder = new Registration.Builder(registration.getId(),
-											registration.getEndpoint(), identity);
+											clientName + " - " + registration.getEndpoint(), identity);
 
 									builder.lwM2mVersion(registration.getLwM2mVersion())
 											.rootPath(registration.getRootPath())
