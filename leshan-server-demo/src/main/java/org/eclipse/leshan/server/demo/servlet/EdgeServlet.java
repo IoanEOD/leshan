@@ -17,7 +17,6 @@
 package org.eclipse.leshan.server.demo.servlet;
 
 import java.io.IOException;
-import java.net.http.WebSocket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,7 +64,7 @@ import org.eclipse.leshan.server.demo.servlet.json.JacksonLwM2mNodeDeserializer;
 import org.eclipse.leshan.server.demo.servlet.json.JacksonLwM2mNodeSerializer;
 import org.eclipse.leshan.server.demo.servlet.json.JacksonRegistrationSerializer;
 import org.eclipse.leshan.server.demo.servlet.json.JacksonResponseSerializer;
-import org.eclipse.leshan.server.demo.websocket.WebSocketClient;
+import org.eclipse.leshan.server.demo.websocket.WebSocketEdge;
 import org.eclipse.leshan.server.registration.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +93,7 @@ public class EdgeServlet extends HttpServlet {
 
     private final ObjectMapper mapper;
     
-    private final WebSocketClient clientSocket;
+    private final WebSocketEdge edgeSocket;
 
     public EdgeServlet(LeshanServer server) throws IOException {
     	System.out.println("EdgeServlet");
@@ -109,8 +108,11 @@ public class EdgeServlet extends HttpServlet {
         module.addDeserializer(LwM2mNode.class, new JacksonLwM2mNodeDeserializer());
         mapper.registerModule(module);
         
-        clientSocket = new WebSocketClient(server, "192.168.56.106", 4999);
-        clientSocket.sendEdgeName();
+        // TODO: Allow ip address of Cloud to be passed in as argument
+        edgeSocket = new WebSocketEdge(server, "192.168.56.106", 4999);
+
+        // Send name of this edge server to the cloud
+        edgeSocket.sendEdgeName();
     }
 
     /**

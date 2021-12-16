@@ -21,6 +21,7 @@ public class RegistrationRequestObject {
 	}
 
 	public RegistrationRequestObject(String requestType, Registration registration) {
+		// Constructor to automatically extract unserializable InetAddress form registration
 		final Inet4Address inetAddr = (Inet4Address) registration.getIdentity().getPeerAddress().getAddress();
 		final byte[] ip = inetAddr.getAddress();
 		final String hostName = inetAddr.getHostName();
@@ -38,6 +39,7 @@ public class RegistrationRequestObject {
 	}
 
 	public void setRequestType(String requestType) {
+		// Control types of requests using setter
 		if(requestType == "register" || requestType == "update" || requestType == "deregister") {
 			this.requestType = requestType;
 		}

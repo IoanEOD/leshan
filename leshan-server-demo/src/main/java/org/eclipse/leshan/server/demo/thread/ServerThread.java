@@ -7,6 +7,8 @@ import java.io.PrintWriter;
 import java.net.Inet4Address;
 import java.net.Socket;
 
+import javax.naming.InvalidNameException;
+
 import com.google.gson.Gson;
 
 import org.eclipse.leshan.core.request.Identity;
@@ -21,6 +23,7 @@ import org.eclipse.leshan.server.registration.RegistrationServiceImpl;
 import org.eclipse.leshan.server.demo.model.RegistrationRequestObject;
 import org.eclipse.leshan.core.request.DeregisterRequest;
 
+// Enum that represents what data the websocket expects next
 enum RecieveModes {
 	name, request
 }
@@ -73,13 +76,16 @@ public class ServerThread extends Thread {
 				} else {
 					switch (recieveMode) {
 						case name:
+							// Read the name of the server
 							clientName = line;
 							recieveMode = RecieveModes.request;
 							break;
 						case request:
+							// Convert from json
 							RegistrationRequestObject requestObject = gson.fromJson(line,
 									RegistrationRequestObject.class);
 							Registration registration = requestObject.getRegistration();
+							// Reconstruct identity of the endpoint using an unsecure identity (will need to consider secure Identities)
 							Identity identity = Identity
 									.unsecure(Inet4Address.getByAddress(requestObject.getHostName(),
 											requestObject.getAddr()), requestObject.getPort());
@@ -87,6 +93,7 @@ public class ServerThread extends Thread {
 							String requestType = requestObject.getRequestType();
 							switch (requestType) {
 								case "register":
+									// Reconstruct registration with new modified endpoint name to illustrate the respective edge server 
 									Registration.Builder builder = new Registration.Builder(registration.getId(),
 											clientName + " - " + registration.getEndpoint(), identity);
 
@@ -106,19 +113,19 @@ public class ServerThread extends Thread {
 											.addRegistration(newRegistration);
 									break;
 								case "update":
+									// Convert recieved registration to UpdateRequest
 									UpdateRequest updateRequest = new UpdateRequest(registration.getId(),registration.getLifeTimeInSec(),registration.getSmsNumber(),registration.getBindingMode(),registration.getObjectLinks(),registration.getAdditionalRegistrationAttributes());
 									final SendableResponse<UpdateResponse> updateResponse = registrationHandler.update(identity, updateRequest);
 									break;
 								case "deregister":
+									// Convert recieved registration to DeregisterRequest
 									DeregisterRequest deregisterRequest = new DeregisterRequest(registration.getId());
 									registrationHandler.deregister(identity, deregisterRequest);
 									break;
 							}
 
 							break;
-						default:
 					}
-					System.out.println(line);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
