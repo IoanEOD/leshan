@@ -54,6 +54,7 @@ Contributors:
         <module>leshan-client-demo</module>
         <module>leshan-server-core-demo</module>
         <module>leshan-server-demo</module>
+        <module>leshan-multitier-server-demo</module>
         <module>leshan-bsserver-demo</module>
     </modules>
 
