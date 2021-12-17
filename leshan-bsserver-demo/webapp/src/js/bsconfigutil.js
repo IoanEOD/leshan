@@ -1,10 +1,10 @@
 /*******************************************************************************
  * Copyright (c) 2021 Sierra Wireless and others.
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * and Eclipse Distribution License v1.0 which accompany this distribution.
- * 
+ *
  * The Eclipse Public License is available at
  *    http://www.eclipse.org/legal/epl-v20.html
  * and the Eclipse Distribution License is available at
@@ -34,6 +34,8 @@ var configFromRestToUI = function(config) {
       }
     }
   }
+  newConfig.toDelete = config.toDelete;
+  newConfig.autoIdForSecurityObject = config.autoIdForSecurityObject;
   return newConfig;
 };
 var configsFromRestToUI = function(configs) {
@@ -56,13 +58,19 @@ var configFromUIToRest = function(c) {
     var bs = config.bs[i];
     newConfig.security[i] = bs.security;
   }
+  if (i == 0) {
+    // To be sure that we are not using instance ID 0 for a DM server.
+    // The convention is to keep it for Bootstrap server.
+    i = 1;
+  }
   for (var j = 0; j < config.dm.length; j++) {
     var dm = config.dm[j];
     newConfig.security[i + j] = dm.security;
     delete dm.security;
     newConfig.servers[j] = dm;
   }
-  newConfig.toDelete = ["/0", "/1"];
+  newConfig.toDelete = config.toDelete;
+  newConfig.autoIdForSecurityObject = config.autoIdForSecurityObject;
   return newConfig;
 };
 

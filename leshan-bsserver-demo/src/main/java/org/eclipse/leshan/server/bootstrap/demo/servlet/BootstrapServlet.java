@@ -111,6 +111,7 @@ public class BootstrapServlet extends HttpServlet {
             if (cfg == null) {
                 sendError(resp, HttpServletResponse.SC_BAD_REQUEST, "no content");
             } else {
+                // Add bootstrap config
                 bsStore.add(endpoint, cfg);
                 resp.setStatus(HttpServletResponse.SC_OK);
             }
@@ -138,6 +139,7 @@ public class BootstrapServlet extends HttpServlet {
 
         String endpoint = path[0];
 
+        // try to remove from bootstrap config store
         if (bsStore.remove(endpoint) != null) {
             resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
         } else {

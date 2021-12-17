@@ -14,7 +14,7 @@
  *     Sierra Wireless - initial API and implementation
  *     Orange - keep one JSON dependency
  *******************************************************************************/
-package org.eclipse.leshan.server.demo.servlet;
+package org.eclipse.leshan.server.core.demo.json.servlet;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,10 +29,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.leshan.server.core.demo.json.JacksonSecurityDeserializer;
 import org.eclipse.leshan.server.core.demo.json.JacksonSecuritySerializer;
 import org.eclipse.leshan.server.core.demo.json.PublicKeySerDes;
 import org.eclipse.leshan.server.core.demo.json.X509CertificateSerDes;
-import org.eclipse.leshan.server.demo.servlet.json.JacksonSecurityDeserializer;
 import org.eclipse.leshan.server.security.EditableSecurityStore;
 import org.eclipse.leshan.server.security.NonUniqueSecurityInfoException;
 import org.eclipse.leshan.server.security.SecurityInfo;
@@ -173,9 +173,12 @@ public class SecurityServlet extends HttpServlet {
 
         LOG.debug("Removing security info for end-point {}", endpoint);
         if (this.store.remove(endpoint, true) != null) {
-            resp.sendError(HttpServletResponse.SC_OK);
+            resp.setStatus(HttpServletResponse.SC_OK);
         } else {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            resp.setContentType("application/json");
+            resp.getOutputStream()
+                    .write("{\"message\":\"not_found\"}".getBytes(StandardCharsets.UTF_8));
+            resp.setStatus(HttpServletResponse.SC_OK);
         }
     }
 }

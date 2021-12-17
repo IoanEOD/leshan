@@ -54,127 +54,193 @@
           </v-btn>
 
           <!-- add client configuration dialog -->
-          <client-config-dialog
-            v-model="dialogOpened"
-            @add="addConfig($event)"
-            :initialValue="editedSecurityInfo"
-          />
+          <client-config-dialog v-model="dialogOpened" @add="onAdd($event)" />
         </v-toolbar>
       </template>
-      <!--custom display for "dm" column-->
-      <template v-slot:item.dm="{ item }">
-        <div v-for="server in item.dm" :key="server.shortid">
-          <p>
-            <strong>{{ server.security.uri }}</strong
-            ><br />
-            security mode : {{ server.security.securityMode }}<br />
-            <span v-if="server.security.certificateUsage">
-              certificate usage : {{ server.security.certificateUsage }}<br />
-            </span>
-          </p>
-        </div>
+      <!--custom display for "security" column-->
+      <template v-slot:item.security="{ item }">
+        <security-info-chip :securityInfo="item.security" />
       </template>
-      <!--custom display for "bs" column-->
-      <template v-slot:item.bs="{ item }">
-        <div v-for="server in item.bs" :key="server.security.uri">
-          <p>
-            <strong>{{ server.security.uri }}</strong
-            ><br />
-            security mode : {{ server.security.securityMode }}<br />
-            <span v-if="server.security.certificateUsage">
-              certificate usage : {{ server.security.certificateUsage }}<br />
+      <!--custom display for "config" column-->
+      <template v-slot:item.config="{ item }">
+        <div class="pa-2">
+          <!-- Path to delete -->
+          <span v-if="item.toDelete && item.toDelete.length > 0">
+            Delete :
+            <span v-for="path in item.toDelete" :key="path">
+              <code>{{ path }}</code
+              >,
             </span>
-          </p>
+            <br />
+          </span>
+          <span v-if="item.autoIdForSecurityObject"
+            >Use Auto ID For Security Object<br /></span
+          >
+          <!-- LWM2M Server to add -->
+          <span v-for="server in item.dm" :key="server.shortid">
+            Add Server: <code>{{ server.security.uri }}</code>
+            <span v-if="server.security.securityMode.toLowerCase() != 'no_sec'">
+              using
+              <v-chip small>
+                <v-icon left small>
+                  {{ modeIcon(server.security.securityMode.toLowerCase()) }}
+                </v-icon>
+                {{ server.security.securityMode.toLowerCase() }}
+              </v-chip>
+            </span>
+            <br />
+          </span>
+          <!-- LWM2M Bootstrap Server to add -->
+          <span v-for="server in item.bs" :key="server.security.uri">
+            Add Bootstrap Server: <code>{{ server.security.uri }}</code>
+            <span v-if="server.security.securityMode.toLowerCase() != 'no_sec'">
+              using
+              <v-chip small>
+                <v-icon left small>
+                  {{ modeIcon(server.security.securityMode.toLowerCase()) }}
+                </v-icon>
+                {{ server.security.securityMode.toLowerCase() }}
+              </v-chip>
+            </span>
+          </span>
         </div>
       </template>
       <!--custom display for "actions" column-->
       <template v-slot:item.actions="{ item }">
-        <v-icon small @click.stop="deleteConfig(item)"> mdi-delete </v-icon>
+        <v-icon small @click.stop="onDelete(item)"> mdi-delete </v-icon>
       </template>
     </v-data-table>
   </div>
 </template>
 <script>
 import { configsFromRestToUI, configFromUIToRest } from "../js/bsconfigutil.js";
-import ClientConfigDialog from "../components/ClientConfigDialog.vue";
+import { fromHex, fromAscii } from "@leshan-server-core-demo/js/byteutils.js";
+import SecurityInfoChip from "@leshan-server-core-demo/components/security/SecurityInfoChip.vue";
+import {
+  adaptToUI,
+  adaptToAPI,
+} from "@leshan-server-core-demo/js/securityutils.js";
+import ClientConfigDialog from "../components/wizard/ClientConfigDialog.vue";
+import { getModeIcon } from "@leshan-server-core-demo/js/securityutils.js";
 
 export default {
-  components: { ClientConfigDialog },
+  components: { ClientConfigDialog, SecurityInfoChip },
   data: () => ({
     dialogOpened: false,
     headers: [
-      { text: "Endpoint", value: "endpoint", width: "20%" },
-      { text: "LWM2M Server", value: "dm", width: "40%", sortable: false },
+      { text: "Endpoint", value: "endpoint", width: "15%" },
+      { text: "Credentials", value: "security", width: "15%", sortable: false },
       {
-        text: "LWM2M Bootstrap Server",
-        value: "bs",
-        width: "40%",
+        text: "Bootstrap Config",
+        value: "config",
+        width: "70%",
         sortable: false,
       },
       { text: "Actions", value: "actions", sortable: false },
     ],
     search: "",
     clientConfigs: [],
-    editedSecurityInfo: {}, // initial value for Security Information dialog
   }),
 
   beforeMount() {
+    var newConfigs = [];
     this.axios
       .get("api/bootstrap")
-      .then(
-        (response) => (this.clientConfigs = configsFromRestToUI(response.data))
-      )
-      .catch((error) => console.log(error));
+      .then((response) => {
+        // on success
+        newConfigs = configsFromRestToUI(response.data);
+      })
+      .then(() => {
+        // in any case
+        this.axios
+          .get("api/security/clients")
+          .then((response) =>
+            // on success
+            // merge config
+            response.data.forEach((sec) => {
+              let existingConfig = newConfigs.find(
+                (c) => c.endpoint === sec.endpoint
+              );
+              if (existingConfig) {
+                existingConfig.security = adaptToUI(sec);
+              } else {
+                newConfigs.push({
+                  endpoint: sec.endpoint,
+                  security: adaptToUI(sec),
+                });
+              }
+            })
+          )
+          .then(() => {
+            // in any case
+            this.clientConfigs = newConfigs;
+          });
+      });
   },
 
   methods: {
     openLink(bs) {
       this.$router.push(`/bootstrap/${bs.endpoint}`);
     },
-    fromAscii(ascii) {
-      var bytearray = [];
-      for (var i in ascii) {
-        bytearray[i] = ascii.charCodeAt(i);
-      }
-      return bytearray;
+    modeIcon(securitymode) {
+      return getModeIcon(securitymode);
     },
-    fromHex(hex) {
-      var bytes = [];
-      for (var i = 0; i < hex.length - 1; i += 2) {
-        bytes.push(parseInt(hex.substr(i, 2), 16));
-      }
-      return bytes;
-    },
+
     formatData(c) {
-      console.log(c);
       let s = {};
       s.securityMode = c.mode.toUpperCase();
       s.uri = c.url;
       switch (c.mode) {
         case "psk":
-          s.publicKeyOrId = this.fromAscii(c.details.identity);
-          s.secretKey = this.fromHex(c.details.key);
+          s.publicKeyOrId = fromAscii(c.details.identity);
+          s.secretKey = fromHex(c.details.key);
           break;
         case "rpk":
-          s.publicKeyOrId = this.fromHex(c.details.client_pub_key);
-          s.secretKey = this.fromHex(c.details.client_pri_key);
-          s.serverPublicKey = this.fromHex(c.details.server_pub_key);
+          s.publicKeyOrId = fromHex(c.details.client_pub_key);
+          s.secretKey = fromHex(c.details.client_pri_key);
+          s.serverPublicKey = fromHex(c.details.server_pub_key);
           break;
         case "x509":
-          s.publicKeyOrId = this.fromHex(c.details.client_certificate);
-          s.secretKey = this.fromHex(c.details.client_pri_key);
-          s.serverPublicKey = this.fromHex(c.details.server_certificate);
+          s.publicKeyOrId = fromHex(c.details.client_certificate);
+          s.secretKey = fromHex(c.details.client_pri_key);
+          s.serverPublicKey = fromHex(c.details.server_certificate);
           s.certificateUsage = c.certificate_usage;
           break;
       }
       return s;
     },
+
+    onAdd(config) {
+      if (config.security) {
+        // if we have security we try to add security first
+        this.axios
+          .put(
+            "api/security/clients/",
+            adaptToAPI(config.security, config.endpoint)
+          )
+          .then(() => {
+            this.addConfig(config);
+          });
+      } else {
+        // if we don't have security, we remove existing one first
+        this.axios
+          .delete("api/security/clients/" + encodeURIComponent(config.endpoint))
+          .then(() => {
+            this.addConfig(config);
+          });
+      }
+    },
+
     addConfig(config) {
-      let dmServer = this.formatData(config.dm);
-      let bsServer = this.formatData(config.bs);
       let c = {
         endpoint: config.endpoint,
-        dm: [
+        dm: [],
+        bs: [],
+      };
+
+      if (config.dm) {
+        let dmServer = this.formatData(config.dm);
+        c.dm = [
           {
             binding: "U",
             defaultMinPeriod: 1,
@@ -197,8 +263,11 @@ export default {
               uri: dmServer.uri,
             },
           },
-        ],
-        bs: [
+        ];
+      }
+      if (config.bs) {
+        let bsServer = this.formatData(config.bs);
+        c.bs = [
           {
             security: {
               bootstrapServer: true,
@@ -215,8 +284,19 @@ export default {
               uri: bsServer.uri,
             },
           },
-        ],
-      };
+        ];
+      }
+
+      if (config.security) {
+        c.security = config.security;
+      }
+      if (config.toDelete) {
+        c.toDelete = config.toDelete;
+      }
+      if (config.autoIdForSecurityObject) {
+        c.autoIdForSecurityObject = config.autoIdForSecurityObject;
+      }
+
       this.axios
         .post(
           "api/bootstrap/" + encodeURIComponent(config.endpoint),
@@ -232,16 +312,14 @@ export default {
             this.clientConfigs.push(c);
           }
           this.dialogOpened = false;
-        })
-        .catch((error) => {
-          console.log(error);
-          this.$dialog.message.error(
-            error.response ? error.response.data : error.toString(),
-            {
-              position: "bottom",
-              timeout: 5000,
-            }
-          );
+        });
+    },
+    onDelete(config) {
+      // if try to remove security info first
+      this.axios
+        .delete("api/security/clients/" + encodeURIComponent(config.endpoint))
+        .then(() => {
+          this.deleteConfig(config);
         });
     },
     deleteConfig(config) {
@@ -250,16 +328,6 @@ export default {
         .delete("api/bootstrap/" + encodeURIComponent(config.endpoint))
         .then(() => {
           this.clientConfigs.splice(this.indexToRemove, 1);
-        })
-        .catch((error) => {
-          console.log(error);
-          this.$dialog.message.error(
-            error.response ? error.response.data : error.toString(),
-            {
-              position: "bottom",
-              timeout: 5000,
-            }
-          );
         });
     },
   },
