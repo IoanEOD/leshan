@@ -23,7 +23,7 @@ Contributors:
         <version>2.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>leshan-multitier-server-demo</artifactId>
-    <name>leshan - server demo</name>
+    <name>leshan - multitier server demo</name>
     <description>A LWM2M demonstration server running an embedded Jetty server</description>
 
     <dependencies>

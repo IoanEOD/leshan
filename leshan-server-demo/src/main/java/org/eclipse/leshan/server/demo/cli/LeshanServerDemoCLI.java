@@ -21,7 +21,6 @@ import org.eclipse.leshan.core.demo.cli.StandardHelpOptions;
 import org.eclipse.leshan.core.demo.cli.VersionProvider;
 import org.eclipse.leshan.server.core.demo.cli.DtlsSection;
 import org.eclipse.leshan.server.core.demo.cli.GeneralSection;
-import org.eclipse.leshan.server.core.demo.cli.IdentitySection;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -91,7 +90,7 @@ public class LeshanServerDemoCLI implements Runnable {
 
     /* ********************************** Identity Section ******************************** */
     @ArgGroup(exclusive = true)
-    public IdentitySection identity = new IdentitySection();
+    public ServerIdentitySection identity = new ServerIdentitySection();
 
     @Spec
     CommandSpec spec;

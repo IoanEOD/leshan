@@ -1,5 +1,3 @@
-const path = require("path");
-
 module.exports = {
   // https://cli.vuejs.org/config/
   outputDir: process.env.MAVEN_OUTPUT_DIR
@@ -15,14 +13,6 @@ module.exports = {
         ws: true,
         changeOrigin: true,
       },
-    },
-  },
-  configureWebpack: {
-    resolve: {
-      alias: {
-        "@leshan-server-core-demo": path.join(__dirname, "../../leshan-server-core-demo/webapp/src"),
-      },
-      extensions: [".js", ".vue"],
     },
   },
 };
