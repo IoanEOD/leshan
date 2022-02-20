@@ -237,6 +237,8 @@ public class CloudServlet extends HttpServlet {
         String[] path = StringUtils.split(req.getPathInfo(), '/');
         String clientEndpoint = path[0];
 
+        
+
         // at least /endpoint/objectId/instanceId
         if (path.length < 3) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid path");

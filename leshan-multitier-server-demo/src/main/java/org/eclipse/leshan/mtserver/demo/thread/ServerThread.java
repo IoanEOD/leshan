@@ -6,8 +6,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Inet4Address;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.naming.InvalidNameException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 
@@ -30,7 +34,7 @@ enum RecieveModes {
 
 public class ServerThread extends Thread {
 
-	private String clientName;
+	private String edgeName;
 
 	private LeshanServer server;
 
@@ -50,10 +54,14 @@ public class ServerThread extends Thread {
 
 	private RegistrationServiceImpl registrationService;
 
-	public ServerThread(Socket socket, RegistrationHandler registrationHandler, LeshanServer server) {
+	private ConnectionThread connectionThread;
+
+	public ServerThread(Socket socket, RegistrationHandler registrationHandler, LeshanServer server,
+			ConnectionThread connectionThread) {
 		this.socket = socket;
 		this.registrationHandler = registrationHandler;
 		this.server = server;
+		this.connectionThread = connectionThread;
 
 		this.gson = new Gson();
 		this.registrationService = (RegistrationServiceImpl) server.getRegistrationService();
@@ -76,8 +84,17 @@ public class ServerThread extends Thread {
 				} else {
 					switch (recieveMode) {
 						case name:
-							// Read the name of the server
-							clientName = line;
+							// Get name of server
+							ArrayList<String> edgeNames = connectionThread.getEdgeNames();
+							long nameCount = edgeNames.stream().filter(name -> line.equals(name)).count();
+							if(nameCount > 0) {
+								edgeName = line + (nameCount +1);
+							}
+							else {
+								edgeName = line;
+							}	
+							edgeNames.add(line);
+							connectionThread.setEdgeNames(edgeNames);				
 							recieveMode = RecieveModes.request;
 							break;
 						case request:
@@ -85,7 +102,8 @@ public class ServerThread extends Thread {
 							RegistrationRequestObject requestObject = gson.fromJson(line,
 									RegistrationRequestObject.class);
 							Registration registration = requestObject.getRegistration();
-							// Reconstruct identity of the endpoint using an unsecure identity (will need to consider secure Identities)
+							// Reconstruct identity of the endpoint using an unsecure identity (will need to
+							// consider secure Identities)
 							Identity identity = Identity
 									.unsecure(Inet4Address.getByAddress(requestObject.getHostName(),
 											requestObject.getAddr()), requestObject.getPort());
@@ -93,9 +111,10 @@ public class ServerThread extends Thread {
 							String requestType = requestObject.getRequestType();
 							switch (requestType) {
 								case "register":
-									// Reconstruct registration with new modified endpoint name to illustrate the respective edge server 
+									// Reconstruct registration with new modified endpoint name to illustrate the
+									// respective edge server
 									Registration.Builder builder = new Registration.Builder(registration.getId(),
-											clientName + " - " + registration.getEndpoint(), identity);
+											edgeName + " - " + registration.getEndpoint(), identity);
 
 									builder.lwM2mVersion(registration.getLwM2mVersion())
 											.rootPath(registration.getRootPath())
@@ -114,8 +133,12 @@ public class ServerThread extends Thread {
 									break;
 								case "update":
 									// Convert recieved registration to UpdateRequest
-									UpdateRequest updateRequest = new UpdateRequest(registration.getId(),registration.getLifeTimeInSec(),registration.getSmsNumber(),registration.getBindingMode(),registration.getObjectLinks(),registration.getAdditionalRegistrationAttributes());
-									final SendableResponse<UpdateResponse> updateResponse = registrationHandler.update(identity, updateRequest);
+									UpdateRequest updateRequest = new UpdateRequest(registration.getId(),
+											registration.getLifeTimeInSec(), registration.getSmsNumber(),
+											registration.getBindingMode(), registration.getObjectLinks(),
+											registration.getAdditionalRegistrationAttributes());
+									final SendableResponse<UpdateResponse> updateResponse = registrationHandler
+											.update(identity, updateRequest);
 									break;
 								case "deregister":
 									// Convert recieved registration to DeregisterRequest
@@ -132,5 +155,11 @@ public class ServerThread extends Thread {
 				return;
 			}
 		}
+	}
+
+	public void sendHttpRequest(HttpServletRequest request, HttpServletResponse resp) {
+		final Gson gson = new Gson();
+		String json = gson.toJson(request, HttpServletRequest.class);
+		outputStream.println(json);
 	}
 }
