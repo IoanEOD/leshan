@@ -59,10 +59,12 @@ import org.eclipse.leshan.core.response.ObserveResponse;
 import org.eclipse.leshan.core.response.ReadResponse;
 import org.eclipse.leshan.core.response.WriteAttributesResponse;
 import org.eclipse.leshan.core.response.WriteResponse;
+import org.eclipse.leshan.mtserver.demo.model.WriteRequestWrapper;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonLwM2mNodeDeserializer;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonLwM2mNodeSerializer;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonRegistrationSerializer;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonResponseSerializer;
+import org.eclipse.leshan.mtserver.demo.thread.ServerThread;
 import org.eclipse.leshan.mtserver.demo.websocket.WebSocketCloud;
 import org.eclipse.leshan.server.californium.LeshanServer;
 import org.eclipse.leshan.server.registration.Registration;
@@ -92,11 +94,11 @@ public class CloudServlet extends HttpServlet {
     private final LeshanServer server;
 
     private final ObjectMapper mapper;
-    
+
     private final WebSocketCloud serverSocket;
 
     public CloudServlet(LeshanServer server) throws IOException {
-    	System.out.println("CloudServlet");
+        System.out.println("CloudServlet");
         this.server = server;
 
         mapper = new ObjectMapper();
@@ -107,7 +109,7 @@ public class CloudServlet extends HttpServlet {
         module.addSerializer(LwM2mNode.class, new JacksonLwM2mNodeSerializer());
         module.addDeserializer(LwM2mNode.class, new JacksonLwM2mNodeDeserializer());
         mapper.registerModule(module);
-        
+
         // Initialize Websocket at cloud
         serverSocket = new WebSocketCloud(server);
     }
@@ -117,8 +119,7 @@ public class CloudServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        
-        
+
         // all registered clients
         if (req.getPathInfo() == null) {
             Collection<Registration> registrations = new ArrayList<>();
@@ -156,7 +157,8 @@ public class CloudServlet extends HttpServlet {
             return;
         }
 
-        // /clients/endPoint/LWRequest/discover : do LightWeight M2M discover request on a given client.
+        // /clients/endPoint/LWRequest/discover : do LightWeight M2M discover request on
+        // a given client.
         if (path.length >= 3 && "discover".equals(path[path.length - 1])) {
             String target = StringUtils.substringBetween(req.getPathInfo(), clientEndpoint, "/discover");
             try {
@@ -176,7 +178,8 @@ public class CloudServlet extends HttpServlet {
             return;
         }
 
-        // /clients/endPoint/LWRequest : do LightWeight M2M read request on a given client.
+        // /clients/endPoint/LWRequest : do LightWeight M2M read request on a given
+        // client.
         try {
             String target = StringUtils.removeStart(req.getPathInfo(), "/" + clientEndpoint);
             Registration registration = server.getRegistrationService().getByEndpoint(clientEndpoint);
@@ -235,54 +238,15 @@ public class CloudServlet extends HttpServlet {
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String[] path = StringUtils.split(req.getPathInfo(), '/');
-        String clientEndpoint = path[0];
 
-        
-
-        // at least /endpoint/objectId/instanceId
-        if (path.length < 3) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid path");
-            return;
-        }
-
-        try {
-            String target = StringUtils.removeStart(req.getPathInfo(), "/" + clientEndpoint);
-            Registration registration = server.getRegistrationService().getByEndpoint(clientEndpoint);
-            if (registration != null) {
-                if (path.length >= 3 && "attributes".equals(path[path.length - 1])) {
-                    // create & process request WriteAttributes request
-                    target = StringUtils.removeEnd(target, path[path.length - 1]);
-                    AttributeSet attributes = AttributeSet.parse(req.getQueryString());
-                    WriteAttributesRequest request = new WriteAttributesRequest(target, attributes);
-                    WriteAttributesResponse cResponse = server.send(registration, request, extractTimeout(req));
-                    processDeviceResponse(req, resp, cResponse);
-                } else {
-                    // get content format
-                    String contentFormatParam = req.getParameter(FORMAT_PARAM);
-                    ContentFormat contentFormat = contentFormatParam != null
-                            ? ContentFormat.fromName(contentFormatParam.toUpperCase())
-                            : null;
-
-                    // get replace parameter
-                    String replaceParam = req.getParameter(REPLACE_PARAM);
-                    boolean replace = true;
-                    if (replaceParam != null)
-                        replace = Boolean.valueOf(replaceParam);
-
-                    // create & process request
-                    LwM2mNode node = extractLwM2mNode(target, req, new LwM2mPath(target));
-                    WriteRequest request = new WriteRequest(replace ? Mode.REPLACE : Mode.UPDATE, contentFormat, target,
-                            node);
-                    WriteResponse cResponse = server.send(registration, request, extractTimeout(req));
-                    processDeviceResponse(req, resp, cResponse);
-                }
-            } else {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                resp.getWriter().format("No registered client with id '%s'", clientEndpoint).flush();
-            }
-        } catch (RuntimeException | InterruptedException e) {
-            handleException(e, resp);
-        }
+        // // at least /endpoint/objectId/instanceId
+        // if (path.length < 3) {
+        //     resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid path");
+        //     return;
+        // }
+        ServerThread serverThread = serverSocket.getServerThreadWithEdgeName(path[0].split(" - ")[0]);
+        WriteRequestWrapper wrapper = new WriteRequestWrapper(req);
+        serverThread.sendHttpServletRequestWrapper(wrapper, req, resp);
     }
 
     /**
@@ -293,7 +257,8 @@ public class CloudServlet extends HttpServlet {
         String[] path = StringUtils.split(req.getPathInfo(), '/');
         String clientEndpoint = path[0];
 
-        // /clients/endPoint/LWRequest/observe : do LightWeight M2M observe request on a given client.
+        // /clients/endPoint/LWRequest/observe : do LightWeight M2M observe request on a
+        // given client.
         if (path.length >= 3 && "observe".equals(path[path.length - 1])) {
             try {
                 String target = StringUtils.substringBetween(req.getPathInfo(), clientEndpoint, "/observe");
@@ -321,7 +286,8 @@ public class CloudServlet extends HttpServlet {
 
         String target = StringUtils.removeStart(req.getPathInfo(), "/" + clientEndpoint);
 
-        // /clients/endPoint/LWRequest : do LightWeight M2M execute request on a given client.
+        // /clients/endPoint/LWRequest : do LightWeight M2M execute request on a given
+        // client.
         if (path.length == 4) {
             try {
                 Registration registration = server.getRegistrationService().getByEndpoint(clientEndpoint);
@@ -343,7 +309,8 @@ public class CloudServlet extends HttpServlet {
             return;
         }
 
-        // /clients/endPoint/LWRequest : do LightWeight M2M create request on a given client.
+        // /clients/endPoint/LWRequest : do LightWeight M2M create request on a given
+        // client.
         if (2 <= path.length && path.length <= 3) {
             try {
                 Registration registration = server.getRegistrationService().getByEndpoint(clientEndpoint);
@@ -386,7 +353,8 @@ public class CloudServlet extends HttpServlet {
         String[] path = StringUtils.split(req.getPathInfo(), '/');
         String clientEndpoint = path[0];
 
-        // /clients/endPoint/LWRequest/observe : cancel observation for the given resource.
+        // /clients/endPoint/LWRequest/observe : cancel observation for the given
+        // resource.
         if (path.length >= 3 && "observe".equals(path[path.length - 1])) {
             try {
                 String target = StringUtils.substringsBetween(req.getPathInfo(), clientEndpoint, "/observe")[0];

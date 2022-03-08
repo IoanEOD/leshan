@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 
+import org.eclipse.californium.core.coap.Request;
 import org.eclipse.leshan.mtserver.demo.thread.ConnectionThread;
 import org.eclipse.leshan.mtserver.demo.thread.ServerThread;
 import org.eclipse.leshan.server.californium.LeshanServer;
@@ -50,5 +51,15 @@ public class WebSocketCloud {
 
 	public void addServerThread(ServerThread serverThread) {
 		serverThreads.add(serverThread);
+	}
+
+	public ServerThread getServerThreadWithEdgeName(String edgeName){
+		ServerThread res = null;
+		for(int i=0; i<serverThreads.size();i++) {
+			if(serverThreads.get(i).getEdgeName().equals(edgeName)) {
+				res = serverThreads.get(i);
+			}
+		}
+		return res;
 	}
 }

@@ -110,6 +110,7 @@ public class EdgeServlet extends HttpServlet {
         
         // TODO: Allow ip address of Cloud to be passed in as argument
         edgeSocket = new WebSocketEdge(server, "192.168.56.106", 4999);
+        edgeSocket.start();
 
         // Send name of this edge server to the cloud
         edgeSocket.sendEdgeName();
