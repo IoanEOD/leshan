@@ -44,6 +44,7 @@ import org.eclipse.leshan.core.demo.cli.ShortErrorMessageHandler;
 import org.eclipse.leshan.core.model.ObjectLoader;
 import org.eclipse.leshan.core.model.ObjectModel;
 import org.eclipse.leshan.mtserver.demo.cli.LeshanMultiTierDemoCLI;
+import org.eclipse.leshan.mtserver.demo.fledge.FledgeBridge;
 import org.eclipse.leshan.mtserver.demo.servlet.CloudServlet;
 import org.eclipse.leshan.mtserver.demo.servlet.EdgeServlet;
 import org.eclipse.leshan.mtserver.demo.servlet.EventServlet;
@@ -247,6 +248,9 @@ public class LeshanMultitierDemo {
         EventServlet eventServlet = new EventServlet(lwServer, lwServer.getSecuredAddress().getPort());
         ServletHolder eventServletHolder = new ServletHolder(eventServlet);
         root.addServlet(eventServletHolder, "/api/event/*");
+
+        // Create Class to Forward Observations to FLEdge
+        new FledgeBridge(lwServer);
 
         
         // Determine clientServletHolder based on multi-tier configuration
