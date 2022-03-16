@@ -1,5 +1,6 @@
 package org.eclipse.leshan.mtserver.demo.fledge;
 
+import java.io.Console;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -13,6 +14,7 @@ import java.util.TimeZone;
 import javax.json.Json;
 
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import org.eclipse.leshan.core.node.LwM2mSingleResource;
 import org.eclipse.leshan.core.observation.CompositeObservation;
@@ -30,21 +32,39 @@ public class FledgeBridge {
                 public void onResponse(SingleObservation observation, Registration registration,
                                 ObserveResponse response) {
 
-                        TimeZone tz = TimeZone.getTimeZone("UTC");
-                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-                        df.setTimeZone(tz);
-                        String nowAsISO = df.format(new Date());
-
+                        String time = currentTimeAsIso();
+                        
+                        //TODO: Iterate over all id's and add to json payload
+                        String path = registration.getEndpoint() + observation.getPath().toString();
 
                         LwM2mSingleResource node = (LwM2mSingleResource) response.getContent();
-                        Double value = (Double) node.getValue();
 
-                        JsonObject jsonObject = Json.createObjectBuilder()
-                                        .add("timestamp", nowAsISO)
-                                        .add("asset", "TODO: GET ASSET NAME")
-                                        .add("readings", Json.createObjectBuilder()
-                                                        .add("TODO:GET READING NAME", value))
-                                        .build();
+                        JsonObjectBuilder jsonBuilder = Json.createObjectBuilder()
+                                        .add("timestamp", time
+                                        )
+                                        .add("asset", path);
+
+                        switch (node.getValue().getClass().getSimpleName()) {
+                                case "String":
+                                        jsonBuilder.add("readings", Json.createObjectBuilder()
+                                                        .add("value", node.getValue().toString()));
+                                        break;
+                                case "Double":
+                                        jsonBuilder.add("readings", Json.createObjectBuilder()
+                                                        .add("value", (Double) node.getValue()));
+                                        break;
+                                case "Integer":
+                                        jsonBuilder.add("readings", Json.createObjectBuilder()
+                                                        .add("value", (Integer) node.getValue()));
+                                        break;
+                                // TODO: Implement other data types
+                                default:
+                                        jsonBuilder.add("readings", Json.createObjectBuilder()
+                                                        .add("value", node.getValue().toString()));
+                                        break;
+                        }
+
+                        JsonObject jsonObject = jsonBuilder.build();
                         String jsonPayload = "[" + jsonObject.toString() + "]";
 
                         HttpClient client = HttpClient.newHttpClient();
@@ -74,6 +94,8 @@ public class FledgeBridge {
                 @Override
                 public void onResponse(CompositeObservation observation, Registration registration,
                                 ObserveCompositeResponse response) {
+                        
+                        System.out.println("x");
                         // TODO Composite HTTP Post to Fledge
                 };
 
@@ -95,5 +117,12 @@ public class FledgeBridge {
 
         public FledgeBridge(LeshanServer server) {
                 server.getObservationService().addListener(this.observationListener);
+        }
+
+        private String currentTimeAsIso() {
+                TimeZone tz = TimeZone.getTimeZone("UTC");
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+                df.setTimeZone(tz);
+                return df.format(new Date());
         }
 }
