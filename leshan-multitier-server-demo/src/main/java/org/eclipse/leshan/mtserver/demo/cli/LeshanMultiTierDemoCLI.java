@@ -86,6 +86,16 @@ public class LeshanMultiTierDemoCLI implements Runnable {
                 description = { //
                         "Initialize server as edge leshan." })
         public Boolean els;
+
+        @Option(names = { "-cip", "--cloud-ip-address" },
+        description = { //
+                "Ip address of Cloud leshan server" })
+        public String cip;
+
+        @Option(names = { "-cpn", "--cloud-port-number" },
+        description = { //
+                "Port Number of Cloud leshan server" })
+        public String cpn;
     }
 
     /* ********************************** DTLS Section ******************************** */

@@ -259,10 +259,10 @@ public class LeshanMultitierDemo {
         	clientServletHolder = new ServletHolder(new CloudServlet(lwServer));
         }
         else if(cli.main.els != null){
-        	clientServletHolder = new ServletHolder(new EdgeServlet(lwServer));
+        	clientServletHolder = new ServletHolder(new EdgeServlet(lwServer, cli.main.cip,Integer.parseInt(cli.main.cpn)));
         }
         else {
-        	clientServletHolder = new ServletHolder(new EdgeServlet(lwServer));
+        	clientServletHolder = new ServletHolder(new EdgeServlet(lwServer, cli.main.cip,Integer.parseInt(cli.main.cpn)));
         }
         root.addServlet(clientServletHolder, "/api/clients/*");
 

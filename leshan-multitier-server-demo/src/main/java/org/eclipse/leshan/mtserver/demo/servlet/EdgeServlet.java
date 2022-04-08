@@ -95,7 +95,7 @@ public class EdgeServlet extends HttpServlet {
     
     private final WebSocketEdge edgeSocket;
 
-    public EdgeServlet(LeshanServer server) throws IOException {
+    public EdgeServlet(LeshanServer server, String CloudIp, int CloudPort) throws IOException {
     	System.out.println("EdgeServlet");
         this.server = server;
 
@@ -108,8 +108,7 @@ public class EdgeServlet extends HttpServlet {
         module.addDeserializer(LwM2mNode.class, new JacksonLwM2mNodeDeserializer());
         mapper.registerModule(module);
         
-        // TODO: Allow ip address of Cloud to be passed in as argument
-        edgeSocket = new WebSocketEdge(server, "192.168.56.106", 4999);
+        edgeSocket = new WebSocketEdge(server, CloudIp, CloudPort);
         edgeSocket.start();
 
         // Send name of this edge server to the cloud
