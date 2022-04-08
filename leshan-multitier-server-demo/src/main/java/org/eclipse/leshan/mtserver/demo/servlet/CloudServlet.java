@@ -64,7 +64,7 @@ import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonLwM2mNodeDeserialize
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonLwM2mNodeSerializer;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonRegistrationSerializer;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonResponseSerializer;
-import org.eclipse.leshan.mtserver.demo.thread.ServerThread;
+import org.eclipse.leshan.mtserver.demo.thread.SocketThread;
 import org.eclipse.leshan.mtserver.demo.websocket.WebSocketCloud;
 import org.eclipse.leshan.server.californium.LeshanServer;
 import org.eclipse.leshan.server.registration.Registration;
@@ -244,7 +244,7 @@ public class CloudServlet extends HttpServlet {
         //     resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid path");
         //     return;
         // }
-        ServerThread serverThread = serverSocket.getServerThreadWithEdgeName(path[0].split(" - ")[0]);
+        SocketThread serverThread = serverSocket.getServerThreadWithEdgeName(path[0].split(" - ")[0]);
         WriteRequestWrapper wrapper = new WriteRequestWrapper(req);
         serverThread.sendHttpServletRequestWrapper(wrapper, req, resp);
     }

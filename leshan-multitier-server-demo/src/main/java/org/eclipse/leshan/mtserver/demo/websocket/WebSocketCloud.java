@@ -14,7 +14,7 @@ import com.google.gson.Gson;
 
 import org.eclipse.californium.core.coap.Request;
 import org.eclipse.leshan.mtserver.demo.thread.ConnectionThread;
-import org.eclipse.leshan.mtserver.demo.thread.ServerThread;
+import org.eclipse.leshan.mtserver.demo.thread.SocketThread;
 import org.eclipse.leshan.server.californium.LeshanServer;
 import org.eclipse.leshan.server.registration.RandomStringRegistrationIdProvider;
 import org.eclipse.leshan.server.registration.RegistrationHandler;
@@ -29,7 +29,7 @@ public class WebSocketCloud {
 
 	// Array to keep track of all the server threads associated with unique edge
 	// servers
-	private ArrayList<ServerThread> serverThreads = new ArrayList<>();
+	private ArrayList<SocketThread> serverThreads = new ArrayList<>();
 
 	public WebSocketCloud(LeshanServer server) throws IOException {
 
@@ -49,12 +49,12 @@ public class WebSocketCloud {
 		serverSocket.close();
 	}
 
-	public void addServerThread(ServerThread serverThread) {
+	public void addServerThread(SocketThread serverThread) {
 		serverThreads.add(serverThread);
 	}
 
-	public ServerThread getServerThreadWithEdgeName(String edgeName){
-		ServerThread res = null;
+	public SocketThread getServerThreadWithEdgeName(String edgeName){
+		SocketThread res = null;
 		for(int i=0; i<serverThreads.size();i++) {
 			if(serverThreads.get(i).getEdgeName().equals(edgeName)) {
 				res = serverThreads.get(i);
