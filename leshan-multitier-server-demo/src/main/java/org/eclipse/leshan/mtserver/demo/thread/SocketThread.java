@@ -48,7 +48,7 @@ enum RecieveModes {
 	name, request, response
 }
 
-public class ServerThread extends Thread {
+public class SocketThread extends Thread {
 
 	private String edgeName;
 
@@ -84,7 +84,7 @@ public class ServerThread extends Thread {
 
 	
 
-	public ServerThread(Socket socket, RegistrationHandler registrationHandler, LeshanServer server,
+	public SocketThread(Socket socket, RegistrationHandler registrationHandler, LeshanServer server,
 			ConnectionThread connectionThread) throws IOException {
 		this.socket = socket;
 		this.registrationHandler = registrationHandler;
