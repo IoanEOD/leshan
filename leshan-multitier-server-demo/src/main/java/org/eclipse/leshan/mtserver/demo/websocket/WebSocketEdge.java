@@ -17,7 +17,7 @@ import org.eclipse.leshan.core.request.WriteRequest;
 import org.eclipse.leshan.core.response.WriteAttributesResponse;
 import org.eclipse.leshan.core.response.WriteResponse;
 import org.eclipse.leshan.mtserver.demo.model.RegistrationRequestObject;
-import org.eclipse.leshan.mtserver.demo.model.WriteRequestWrapper;
+import org.eclipse.leshan.mtserver.demo.model.WriteRequestAttributes;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonLwM2mNodeDeserializer;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonLwM2mNodeSerializer;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonResponseSerializer;
@@ -109,7 +109,7 @@ public class WebSocketEdge extends Thread {
                     return;
                 } else {
                     final Gson gson = new Gson();
-                    WriteRequestWrapper request = gson.fromJson(line, WriteRequestWrapper.class);
+                    WriteRequestAttributes request = gson.fromJson(line, WriteRequestAttributes.class);
 
                     String resp = proccessRequestWrapper(request);
                     writer.println(resp);
@@ -136,7 +136,7 @@ public class WebSocketEdge extends Thread {
         writer.println(json);
     }
 
-    private String proccessRequestWrapper(WriteRequestWrapper request) {
+    private String proccessRequestWrapper(WriteRequestAttributes request) {
         String[] path = StringUtils.split(request.getPathInfo(), '/');
         String clientEndpoint = path[0];
         String cResponseString;
@@ -192,7 +192,7 @@ public class WebSocketEdge extends Thread {
 
     }
 
-    private LwM2mNode extractLwM2mNode(String target, WriteRequestWrapper request, LwM2mPath path) throws IOException {
+    private LwM2mNode extractLwM2mNode(String target, WriteRequestAttributes request, LwM2mPath path) throws IOException {
         String contentType = StringUtils.substringBefore(request.getContentType(), ";");
         if ("application/json".equals(contentType)) {
             String content = request.getContent();

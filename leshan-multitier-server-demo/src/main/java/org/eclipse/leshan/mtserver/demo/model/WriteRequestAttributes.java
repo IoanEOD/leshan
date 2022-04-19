@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
-public class WriteRequestWrapper {
+public class WriteRequestAttributes {
 
     private static final String FORMAT_PARAM = "format";
     private static final String TIMEOUT_PARAM = "timeout";
@@ -24,10 +24,10 @@ public class WriteRequestWrapper {
 
 
 
-    public WriteRequestWrapper() {
+    public WriteRequestAttributes() {
     }
 
-    public WriteRequestWrapper(HttpServletRequest req) throws IOException {
+    public WriteRequestAttributes(HttpServletRequest req) throws IOException {
         this.pathInfo = "/" + req.getPathInfo().split(" - ")[1];
         this.queryString = req.getQueryString();
         this.contentFormatParam = req.getParameter(FORMAT_PARAM);
@@ -37,7 +37,7 @@ public class WriteRequestWrapper {
         this.timeout = extractTimeout(req);
     }
 
-    public WriteRequestWrapper(String pathInfo, String queryString, String contentFormatParam, String replaceParam, String contentType, String content) {
+    public WriteRequestAttributes(String pathInfo, String queryString, String contentFormatParam, String replaceParam, String contentType, String content) {
         this.pathInfo = pathInfo;
         this.queryString = queryString;
         this.contentFormatParam = contentFormatParam;
@@ -102,37 +102,37 @@ public class WriteRequestWrapper {
         this.timeout = timeout;
     }
 
-    public WriteRequestWrapper path(String pathInfo) {
+    public WriteRequestAttributes path(String pathInfo) {
         setPathInfo(pathInfo);
         return this;
     }
 
-    public WriteRequestWrapper queryString(String queryString) {
+    public WriteRequestAttributes queryString(String queryString) {
         setQueryString(queryString);
         return this;
     }
 
-    public WriteRequestWrapper contentFormatParam(String contentFormatParam) {
+    public WriteRequestAttributes contentFormatParam(String contentFormatParam) {
         setContentFormatParam(contentFormatParam);
         return this;
     }
 
-    public WriteRequestWrapper replaceParam(String replaceParam) {
+    public WriteRequestAttributes replaceParam(String replaceParam) {
         setReplaceParam(replaceParam);
         return this;
     }
 
-    public WriteRequestWrapper contentType(String contentType) {
+    public WriteRequestAttributes contentType(String contentType) {
         setContentType(contentType);
         return this;
     }
 
-    public WriteRequestWrapper content(String content) {
+    public WriteRequestAttributes content(String content) {
         setContent(content);
         return this;
     }
 
-    public WriteRequestWrapper timeout(long timeout) {
+    public WriteRequestAttributes timeout(long timeout) {
         setTimeout(timeout);
         return this;
     }

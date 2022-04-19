@@ -59,7 +59,7 @@ import org.eclipse.leshan.core.response.ObserveResponse;
 import org.eclipse.leshan.core.response.ReadResponse;
 import org.eclipse.leshan.core.response.WriteAttributesResponse;
 import org.eclipse.leshan.core.response.WriteResponse;
-import org.eclipse.leshan.mtserver.demo.model.WriteRequestWrapper;
+import org.eclipse.leshan.mtserver.demo.model.WriteRequestAttributes;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonLwM2mNodeDeserializer;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonLwM2mNodeSerializer;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonRegistrationSerializer;
@@ -245,7 +245,7 @@ public class CloudServlet extends HttpServlet {
         //     return;
         // }
         SocketThread serverThread = serverSocket.getServerThreadWithEdgeName(path[0].split(" - ")[0]);
-        WriteRequestWrapper wrapper = new WriteRequestWrapper(req);
+        WriteRequestAttributes wrapper = new WriteRequestAttributes(req);
         serverThread.sendHttpServletRequestWrapper(wrapper, req, resp);
     }
 

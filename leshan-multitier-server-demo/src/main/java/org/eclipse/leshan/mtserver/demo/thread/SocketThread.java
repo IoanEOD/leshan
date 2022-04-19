@@ -25,7 +25,7 @@ import org.eclipse.leshan.core.request.UpdateRequest;
 import org.eclipse.leshan.core.response.LwM2mResponse;
 import org.eclipse.leshan.core.response.SendableResponse;
 import org.eclipse.leshan.core.response.UpdateResponse;
-import org.eclipse.leshan.mtserver.demo.model.WriteRequestWrapper;
+import org.eclipse.leshan.mtserver.demo.model.WriteRequestAttributes;
 import org.eclipse.leshan.mtserver.demo.servlet.CloudServlet;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonLwM2mNodeDeserializer;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonLwM2mNodeSerializer;
@@ -198,9 +198,9 @@ public class SocketThread extends Thread {
 		}
 	}
 
-	public void sendHttpServletRequestWrapper(WriteRequestWrapper wrapper, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	public void sendHttpServletRequestWrapper(WriteRequestAttributes wrapper, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		final Gson gson = new Gson();
-		String json = gson.toJson(wrapper, WriteRequestWrapper.class);
+		String json = gson.toJson(wrapper, WriteRequestAttributes.class);
 		writer.println(json);
 		currentReq = req;
 		currentResp = resp;
