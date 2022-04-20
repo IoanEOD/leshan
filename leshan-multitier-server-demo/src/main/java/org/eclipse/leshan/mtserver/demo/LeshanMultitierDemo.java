@@ -45,8 +45,8 @@ import org.eclipse.leshan.core.model.ObjectLoader;
 import org.eclipse.leshan.core.model.ObjectModel;
 import org.eclipse.leshan.mtserver.demo.cli.LeshanMultiTierDemoCLI;
 import org.eclipse.leshan.mtserver.demo.fledge.FledgeBridge;
-import org.eclipse.leshan.mtserver.demo.servlet.CloudServlet;
-import org.eclipse.leshan.mtserver.demo.servlet.EdgeServlet;
+import org.eclipse.leshan.mtserver.demo.servlet.CloudClientServlet;
+import org.eclipse.leshan.mtserver.demo.servlet.EdgeClientServlet;
 import org.eclipse.leshan.mtserver.demo.servlet.EventServlet;
 import org.eclipse.leshan.mtserver.demo.servlet.ObjectSpecServlet;
 import org.eclipse.leshan.mtserver.demo.servlet.SecurityServlet;
@@ -256,13 +256,13 @@ public class LeshanMultitierDemo {
         // Determine clientServletHolder based on multi-tier configuration
         ServletHolder clientServletHolder;
         if(cli.main.cls != null) {
-        	clientServletHolder = new ServletHolder(new CloudServlet(lwServer));
+        	clientServletHolder = new ServletHolder(new CloudClientServlet(lwServer));
         }
         else if(cli.main.els != null){
-        	clientServletHolder = new ServletHolder(new EdgeServlet(lwServer, cli.main.cip,Integer.parseInt(cli.main.cpn)));
+        	clientServletHolder = new ServletHolder(new EdgeClientServlet(lwServer, cli.main.cip,Integer.parseInt(cli.main.cpn)));
         }
         else {
-        	clientServletHolder = new ServletHolder(new EdgeServlet(lwServer, cli.main.cip,Integer.parseInt(cli.main.cpn)));
+        	clientServletHolder = new ServletHolder(new EdgeClientServlet(lwServer, cli.main.cip,Integer.parseInt(cli.main.cpn)));
         }
         root.addServlet(clientServletHolder, "/api/clients/*");
 

@@ -26,7 +26,7 @@ import org.eclipse.leshan.core.response.LwM2mResponse;
 import org.eclipse.leshan.core.response.SendableResponse;
 import org.eclipse.leshan.core.response.UpdateResponse;
 import org.eclipse.leshan.mtserver.demo.model.WriteRequestAttributes;
-import org.eclipse.leshan.mtserver.demo.servlet.CloudServlet;
+import org.eclipse.leshan.mtserver.demo.servlet.CloudClientServlet;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonLwM2mNodeDeserializer;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonLwM2mNodeSerializer;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonRegistrationSerializer;
@@ -80,7 +80,7 @@ public class SocketThread extends Thread {
 
 	private final ObjectMapper mapper;
 
-	private static final Logger LOG = LoggerFactory.getLogger(CloudServlet.class);
+	private static final Logger LOG = LoggerFactory.getLogger(CloudClientServlet.class);
 
 	
 

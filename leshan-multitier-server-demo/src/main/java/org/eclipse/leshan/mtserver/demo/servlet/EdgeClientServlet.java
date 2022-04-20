@@ -77,13 +77,13 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 /**
  * Service HTTP REST API calls.
  */
-public class EdgeServlet extends HttpServlet {
+public class EdgeClientServlet extends HttpServlet {
 
     private static final String FORMAT_PARAM = "format";
     private static final String TIMEOUT_PARAM = "timeout";
     private static final String REPLACE_PARAM = "replace";
 
-    private static final Logger LOG = LoggerFactory.getLogger(EdgeServlet.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EdgeClientServlet.class);
 
     private static final long DEFAULT_TIMEOUT = 5000; // ms
 
@@ -95,7 +95,7 @@ public class EdgeServlet extends HttpServlet {
     
     private final WebSocketEdge edgeSocket;
 
-    public EdgeServlet(LeshanServer server, String CloudIp, int CloudPort) throws IOException {
+    public EdgeClientServlet(LeshanServer server, String CloudIp, int CloudPort) throws IOException {
     	System.out.println("EdgeServlet");
         this.server = server;
 

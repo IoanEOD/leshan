@@ -79,13 +79,13 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 /**
  * Service HTTP REST API calls.
  */
-public class CloudServlet extends HttpServlet {
+public class CloudClientServlet extends HttpServlet {
 
     private static final String FORMAT_PARAM = "format";
     private static final String TIMEOUT_PARAM = "timeout";
     private static final String REPLACE_PARAM = "replace";
 
-    private static final Logger LOG = LoggerFactory.getLogger(CloudServlet.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CloudClientServlet.class);
 
     private static final long DEFAULT_TIMEOUT = 5000; // ms
 
@@ -97,7 +97,7 @@ public class CloudServlet extends HttpServlet {
 
     private final WebSocketCloud serverSocket;
 
-    public CloudServlet(LeshanServer server) throws IOException {
+    public CloudClientServlet(LeshanServer server) throws IOException {
         System.out.println("CloudServlet");
         this.server = server;
 
