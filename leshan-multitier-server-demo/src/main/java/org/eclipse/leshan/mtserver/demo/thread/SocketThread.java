@@ -198,9 +198,9 @@ public class SocketThread extends Thread {
 		}
 	}
 
-	public void sendHttpServletRequestWrapper(WriteRequestAttributes wrapper, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	public void sendWriteRequestAttributes(WriteRequestAttributes attributes, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		final Gson gson = new Gson();
-		String json = gson.toJson(wrapper, WriteRequestAttributes.class);
+		String json = gson.toJson(attributes, WriteRequestAttributes.class);
 		writer.println(json);
 		currentReq = req;
 		currentResp = resp;
