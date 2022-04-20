@@ -39,7 +39,7 @@ public class ConnectionThread extends Thread {
                     socket = serverSocket.accept();
                     // Create and start new server thread to handle communication to new edge server
                     SocketThread serverThread = new SocketThread(socket, registrationHandler, server, this);
-                    webSocketCloud.addServerThread(serverThread);
+                    webSocketCloud.addSocketThread(serverThread);
                     serverThread.start();
                 }
 

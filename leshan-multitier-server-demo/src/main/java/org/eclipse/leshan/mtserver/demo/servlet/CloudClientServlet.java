@@ -244,7 +244,7 @@ public class CloudClientServlet extends HttpServlet {
         //     resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid path");
         //     return;
         // }
-        SocketThread socketThread= serverSocket.getServerThreadWithEdgeName(path[0].split(" - ")[0]);
+        SocketThread socketThread= serverSocket.getSocketThreadWithEdgeName(path[0].split(" - ")[0]);
         WriteRequestAttributes wrapper = new WriteRequestAttributes(req);
         socketThread.sendWriteRequestAttributes(wrapper, req, resp);
     }

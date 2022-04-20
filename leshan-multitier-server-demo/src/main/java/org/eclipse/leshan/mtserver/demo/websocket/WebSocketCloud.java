@@ -49,11 +49,11 @@ public class WebSocketCloud {
 		serverSocket.close();
 	}
 
-	public void addServerThread(SocketThread serverThread) {
+	public void addSocketThread(SocketThread serverThread) {
 		serverThreads.add(serverThread);
 	}
 
-	public SocketThread getServerThreadWithEdgeName(String edgeName){
+	public SocketThread getSocketThreadWithEdgeName(String edgeName){
 		SocketThread res = null;
 		for(int i=0; i<serverThreads.size();i++) {
 			if(serverThreads.get(i).getEdgeName().equals(edgeName)) {
