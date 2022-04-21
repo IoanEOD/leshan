@@ -249,9 +249,6 @@ public class LeshanMultitierDemo {
         ServletHolder eventServletHolder = new ServletHolder(eventServlet);
         root.addServlet(eventServletHolder, "/api/event/*");
 
-        // Create Class to Forward Observations to FLEdge
-        new FledgeBridge(lwServer);
-
         
         // Determine clientServletHolder based on multi-tier configuration
         ServletHolder clientServletHolder;
@@ -259,9 +256,12 @@ public class LeshanMultitierDemo {
         	clientServletHolder = new ServletHolder(new CloudClientServlet(lwServer));
         }
         else if(cli.main.els != null){
+            // Create Class to Forward Observations to Fledge
+            new FledgeBridge(lwServer);
         	clientServletHolder = new ServletHolder(new EdgeClientServlet(lwServer, cli.main.cip,Integer.parseInt(cli.main.cpn)));
         }
         else {
+            new FledgeBridge(lwServer);
         	clientServletHolder = new ServletHolder(new EdgeClientServlet(lwServer, cli.main.cip,Integer.parseInt(cli.main.cpn)));
         }
         root.addServlet(clientServletHolder, "/api/clients/*");
