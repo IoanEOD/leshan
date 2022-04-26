@@ -65,7 +65,7 @@ import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonLwM2mNodeSerializer;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonRegistrationSerializer;
 import org.eclipse.leshan.mtserver.demo.servlet.json.JacksonResponseSerializer;
 import org.eclipse.leshan.mtserver.demo.thread.SocketThread;
-import org.eclipse.leshan.mtserver.demo.websocket.WebSocketCloud;
+import org.eclipse.leshan.mtserver.demo.websocket.WebSocketHolderCloud;
 import org.eclipse.leshan.server.californium.LeshanServer;
 import org.eclipse.leshan.server.registration.Registration;
 import org.slf4j.Logger;
@@ -95,7 +95,7 @@ public class CloudClientServlet extends HttpServlet {
 
     private final ObjectMapper mapper;
 
-    private final WebSocketCloud serverSocket;
+    private final WebSocketHolderCloud serverSocket;
 
     public CloudClientServlet(LeshanServer server) throws IOException {
         System.out.println("CloudServlet");
@@ -111,7 +111,7 @@ public class CloudClientServlet extends HttpServlet {
         mapper.registerModule(module);
 
         // Initialize Websocket at cloud
-        serverSocket = new WebSocketCloud(server);
+        serverSocket = new WebSocketHolderCloud(server);
     }
 
     /**

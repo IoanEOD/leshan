@@ -23,15 +23,14 @@ import org.eclipse.leshan.server.registration.RegistrationServiceImpl;
 import org.eclipse.leshan.server.security.Authorizer;
 import org.eclipse.leshan.server.security.DefaultAuthorizer;
 
-public class WebSocketCloud {
+public class WebSocketHolderCloud {
 
-	private ServerSocket serverSocket;
 
 	// Array to keep track of all the server threads associated with unique edge
 	// servers
 	private ArrayList<SocketThread> serverThreads = new ArrayList<>();
 
-	public WebSocketCloud(LeshanServer server) throws IOException {
+	public WebSocketHolderCloud(LeshanServer server) throws IOException {
 
 		// Set up a registration handler to be passed into connection thread
 		// Will be used to create, update and delete registrations in cloud
@@ -45,9 +44,6 @@ public class WebSocketCloud {
 		connectionThread.start();
 	}
 
-	public void close() throws IOException {
-		serverSocket.close();
-	}
 
 	public void addSocketThread(SocketThread serverThread) {
 		serverThreads.add(serverThread);

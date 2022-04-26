@@ -96,7 +96,6 @@ public class FledgeBridge {
                 public void onResponse(CompositeObservation observation, Registration registration,
                                 ObserveCompositeResponse response) {
 
-                        System.out.println("x");
                         // TODO Composite HTTP Post to Fledge
                 };
 

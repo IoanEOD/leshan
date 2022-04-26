@@ -5,13 +5,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import org.eclipse.leshan.mtserver.demo.websocket.WebSocketCloud;
+import org.eclipse.leshan.mtserver.demo.websocket.WebSocketHolderCloud;
 import org.eclipse.leshan.server.californium.LeshanServer;
 import org.eclipse.leshan.server.registration.RegistrationHandler;
 
 public class ConnectionThread extends Thread {
 
-    private WebSocketCloud webSocketCloud;
+    private WebSocketHolderCloud webSocketHolderCloud;
 
     private RegistrationHandler registrationHandler;
 
@@ -19,9 +19,9 @@ public class ConnectionThread extends Thread {
 
     private ArrayList<String> edgeNames = new ArrayList<String>();
 
-    public ConnectionThread(WebSocketCloud webSocketCloud, RegistrationHandler registrationHandler,
+    public ConnectionThread(WebSocketHolderCloud webSocketHolderCloud, RegistrationHandler registrationHandler,
             LeshanServer server) {
-        this.webSocketCloud = webSocketCloud;
+        this.webSocketHolderCloud = webSocketHolderCloud;
         this.registrationHandler = registrationHandler;
         this.server = server;
     }
@@ -39,7 +39,7 @@ public class ConnectionThread extends Thread {
                     socket = serverSocket.accept();
                     // Create and start new server thread to handle communication to new edge server
                     SocketThread serverThread = new SocketThread(socket, registrationHandler, server, this);
-                    webSocketCloud.addSocketThread(serverThread);
+                    webSocketHolderCloud.addSocketThread(serverThread);
                     serverThread.start();
                 }
 
